@@ -1,0 +1,5 @@
+bardapi
+gradio
+PyMupdf
+KorToBraille
+requests
