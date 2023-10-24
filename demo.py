@@ -18,7 +18,7 @@ def main():
     put_progressbar('Progress')
     put_markdown("<br/>")
     put_markdown("___")
-    ts = texts.korean[320:330]
+    ts = texts.korean[250:300]
     bs = texts.braille
 
     original_bs = '\n'.join([i[0] for i in bs])
@@ -65,12 +65,15 @@ def main():
             if sel == outputs[0]:
                 shorten_kr += outputs[0] + "\n"
                 shorten_bs += KorToBraille().korTranslate(outputs[0]).strip()[:-1] + "\n"
+                ts[cnt][0]=outputs[0]
             elif sel == outputs[1]:
                 shorten_kr += outputs[1] + "\n"
                 shorten_bs += KorToBraille().korTranslate(outputs[1]).strip()[:-1] + "\n"
+                ts[cnt][0] = outputs[0]
             elif sel == outputs[2]:
                 shorten_kr += outputs[2] + "\n"
                 shorten_bs += KorToBraille().korTranslate(outputs[2]).strip()[:-1] + "\n"
+                ts[cnt][0] = outputs[0]
             elif sel == "그대로 점역할게요.":
                 shorten_kr += ts[cnt][0] + "\n"
                 shorten_bs += KorToBraille().korTranslate(ts[cnt][0]).strip()[:-1] + "\n"
@@ -83,6 +86,7 @@ def main():
                 done = input("변경 사항을 입력해주세요.")
                 shorten_kr += done + "\n"
                 shorten_bs += KorToBraille().korTranslate(done).strip()[:-1] + "\n"
+                ts[cnt][0] = done
             cnt += 1
 
     with use_scope('second', clear=True):
