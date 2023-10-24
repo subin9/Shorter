@@ -1,4 +1,3 @@
-from typing import List
 from bardapi import Bard
 import os
 import re
@@ -26,7 +25,7 @@ def get_alternatives(text: str, length:int, token: str) -> list:
     text = "\"" + text + "\""
     answer = bard.get_answer(text + "라는 문장을 " + str(length // 3 * 2) + "글자 내외의 문장으로 짧게 요약해줘. 요약할 때, 말투는 그대로 남겨줘. 3개 정도 알려주고, 대답할 때는 요약한 문장만 말해줘.")[
         'content'].split("**")
-    return [re.sub(r'[^A-Za-z0-9가-힣,!.? ]', '', answer[j]) + " (길이 : " + str(
+    return [re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', answer[j]) + " (길이 : " + str(
         len(KorToBraille().korTranslate(answer[j]).strip()) - 1) + ")" for j in range(len(answer)) if j % 2][:3]
 
 
@@ -41,7 +40,7 @@ class Text:
                 sentence = sentence.strip()
                 temp = re.sub(r"[^가-힣.,!?0-9 ]", "", sentence).strip()
                 b = KorToBraille().korTranslate(temp).strip()[:-1]
-                self.korean.append((sentence, len(sentence)))
-                self.braille.append((b, len(b)))
+                self.korean.append([sentence, len(sentence)])
+                self.braille.append([b, len(b)])
         self.korean = [i for i in self.korean if i[0]]
         self.braille = [i for i in self.braille if i[0]]
