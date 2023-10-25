@@ -23,10 +23,13 @@ def get_alternatives(text: str, length:int, token: str) -> list:
 
     bard = Bard(token=token, session=session, timeout=30)
     text = "\"" + text + "\""
-    answer = bard.get_answer(text + "라는 문장을 " + str(length // 3 * 2) + "글자 내외의 문장으로 짧게 요약해줘. 요약할 때, 말투는 그대로 남겨줘. 3개 정도 알려주고, 대답할 때는 요약한 문장만 말해줘.")[
-        'content'].split("**")
+    pattern = r"{(.*?)}"
+    example="예시 1) 병원비가 1천만원이어도 1억원이어도 본인은 1백만원만 부담토록 하겠습니다.\n요약 1) {병원비가 얼마든지 본인은 1백만원만 부담토록 하겠습니다.}\n예시 2) 공동주택 및 마을발전소에 태양광 무상 설치로 1가구 1태양광 시대\n요약 2) {주택 및 마을발전소에 태양광 무상 설치}\n예시 3) 무한 개발, 무한 경쟁, 성장 중심의 체제를 공존의 체제로 전환해야 합니다.\n요약 3) {경쟁, 성장 위주의 체제를 공존의 체제로 만들어야 합니다.}"
+    answer = bard.get_answer(text + "라는 글을 " + str(length // 3 * 2) + "글자 내외로 요약하십시오. 세 개의 요약을 만드시오. 당신은 요약된 세 개의 결과를 \"중괄호 안에\" 들어있는 텍스트 형태로 대답할 것입니다. 올바르게 요약된 세 가지 예시는 다음과 같습니다.\n"+example)[
+        'content']
+    answer = re.findall(pattern, answer)
     return [re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', answer[j]) + " (길이 : " + str(
-        len(KorToBraille().korTranslate(answer[j]).strip()) - 1) + ")" for j in range(len(answer)) if j % 2][:3]
+        len(KorToBraille().korTranslate(answer[j]).strip()) - 1).zfill(3) + ")" for j in range(len(answer))][:3]
 
 
 class Text:

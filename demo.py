@@ -6,19 +6,19 @@ from pywebio.output import *
 
 def main():
     parser = argparse.ArgumentParser(description='Demo code for executing ⠠⠨⠂⠃⠈⠝')
-    parser.add_argument('--pdf_path', help='요약할 pdf 파일 경로')
-    parser.add_argument('--bard_token', help='Bard 실행 후 F12->application->Cookies에서 __Secure-1PSID 값')  # 필요한 인수를 추가
+    parser.add_argument('--path', help='요약할 pdf 파일 경로')
+    parser.add_argument('--psid', help='Bard 실행 후 F12->application->Cookies에서 __Secure-1PSID 값')  # 필요한 인수를 추가
     parser.add_argument('--audible')
     args = parser.parse_args()
 
-    texts = Text(args.pdf_path)
+    texts = Text(args.path)
     put_markdown("# ⠨⠂⠃⠈⠝ : 선거 공보물, 점자로 쉽고, 빠르고, 짧게 번역하기")
     put_markdown("<br/>")
     put_markdown("### 진행 상황")
     put_progressbar('Progress')
     put_markdown("<br/>")
     put_markdown("___")
-    ts = texts.korean[250:300]
+    ts = texts.korean
     bs = texts.braille
 
     original_bs = '\n'.join([i[0] for i in bs])
@@ -60,24 +60,25 @@ def main():
                     else:
                         put_markdown("> " + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]))
             put_markdown("___")
-            outputs = get_alternatives(ts[cnt][0], len(ts[cnt][0]), args.bard_token.strip())
+            outputs = get_alternatives(ts[cnt][0], len(ts[cnt][0]), args.psid.strip())
             sel = radio("요약된 문장을 선택해주세요.", outputs + ["그대로 점역할게요.", "다음 문장과 함께 점역할게요.", "이 문장은 뺄게요.", "직접 변경할래요."])
             if sel == outputs[0]:
                 shorten_kr += outputs[0] + "\n"
-                shorten_bs += KorToBraille().korTranslate(outputs[0]).strip()[:-1] + "\n"
-                ts[cnt][0]=outputs[0]
+                shorten_bs += KorToBraille().korTranslate(outputs[0]).strip()[:-10] + "\n"
+                ts[cnt][0]=outputs[0][:-10]
             elif sel == outputs[1]:
                 shorten_kr += outputs[1] + "\n"
-                shorten_bs += KorToBraille().korTranslate(outputs[1]).strip()[:-1] + "\n"
-                ts[cnt][0] = outputs[0]
+                shorten_bs += KorToBraille().korTranslate(outputs[1]).strip()[:-10] + "\n"
+                ts[cnt][0] = outputs[1][:-10]
             elif sel == outputs[2]:
                 shorten_kr += outputs[2] + "\n"
-                shorten_bs += KorToBraille().korTranslate(outputs[2]).strip()[:-1] + "\n"
-                ts[cnt][0] = outputs[0]
+                shorten_bs += KorToBraille().korTranslate(outputs[2]).strip()[:-10] + "\n"
+                ts[cnt][0] = outputs[2][:-10]
             elif sel == "그대로 점역할게요.":
                 shorten_kr += ts[cnt][0] + "\n"
-                shorten_bs += KorToBraille().korTranslate(ts[cnt][0]).strip()[:-1] + "\n"
+                shorten_bs += KorToBraille().korTranslate(ts[cnt][0]).strip()[:-10] + "\n"
             elif sel == "이 문장은 뺄게요.":
+                ts[cnt][0] = "삭제됨"
                 pass
             elif sel == "다음 문장과 함께 점역할게요.":
                 next = ts[cnt][0] + " "
