@@ -1,5 +1,7 @@
 from utils import *
 import argparse
+from PIL import Image
+import io
 from pywebio.input import *
 from pywebio.output import *
 
@@ -11,16 +13,28 @@ def main():
     parser.add_argument('--audible')
     args = parser.parse_args()
 
-    texts = Text(args.path)
+    pages = Pdf(args.path)
     put_markdown("# ⠨⠂⠃⠈⠝ : 선거 공보물, 점자로 쉽고, 빠르고, 짧게 번역하기")
     put_markdown("<br/>")
     put_markdown("### 진행 상황")
     put_progressbar('Progress')
     put_markdown("<br/>")
     put_markdown("___")
-    ts = texts.korean
-    bs = texts.braille
+    ts = pages.korean
+    bs = pages.braille
+    images = pages.images
+    deletion=[]
+    for i in range(len(ts)):
+        if not re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', ts[i][0]):
+            deletion.append(i)
 
+    ts=[ts[i] for i in range(len(ts)) if i not in deletion]
+    bs=[bs[i] for i in range(len(bs)) if i not in deletion]
+    imgs=[]
+    for i in range(len(images)):
+        img = Image.frombytes("RGB", [images[i].width, images[i].height], images[i].samples)
+        imgs.append(img)
+    contents = [put_image(src=imgs[i]) for i in range(len(imgs))]
     original_bs = '\n'.join([i[0] for i in bs])
     shorten_kr = ""
     shorten_bs = ""
@@ -41,7 +55,10 @@ def main():
                 "**\"" + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', ts[cnt][0]) + "\" 라는 문장을 어떤 문장으로 요약해드릴까요? (점자 길이 : " + str(
                     b_len) + ", 목표 길이 : " + str(b_len // 3 * 2) + ")**")
             put_markdown("<br/>")
+            put_button("원본 확인하기", onclick=lambda: popup('사진 보기', contents), color='success', outline=True)
+            put_markdown("<br/>")
             put_markdown("앞, 뒤 문장은 다음과 같습니다.")
+
             temp = ts[max(cnt - 3, 0):min(len(ts), cnt + 4)]
             for i in range(len(temp)):
                 if cnt < 3:

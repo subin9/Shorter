@@ -2,3 +2,4 @@ pywebio
 bardapi
 KorToBraille
 PyMuPDF
+Pillow

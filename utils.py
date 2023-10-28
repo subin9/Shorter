@@ -32,13 +32,15 @@ def get_alternatives(text: str, length:int, token: str) -> list:
         len(KorToBraille().korTranslate(answer[j]).strip()) - 1).zfill(3) + ")" for j in range(len(answer))][:3]
 
 
-class Text:
+class Pdf:
     def __init__(self, path: str):
         self.korean = []
         self.braille = []
+        self.images = []
         self.path = path
         doc = fitz.open(self.path)
         for page in doc:
+            self.images.append(page.get_pixmap())
             for sentence in page.get_text().split("\n"):
                 sentence = sentence.strip()
                 temp = re.sub(r"[^가-힣.,!?0-9 ]", "", sentence).strip()
@@ -47,3 +49,4 @@ class Text:
                 self.braille.append([b, len(b)])
         self.korean = [i for i in self.korean if i[0]]
         self.braille = [i for i in self.braille if i[0]]
+        self.images = [i for i in self.images if i]
