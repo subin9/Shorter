@@ -14,7 +14,7 @@ def main():
     args = parser.parse_args()
 
     pages = Pdf(args.path)
-    put_markdown("# ⠨⠂⠃⠈⠝ : 선거 공보물, 점자로 쉽고, 빠르고, 짧게 번역하기")
+    put_markdown("# ⠨⠂⠃⠈⠝ : 선거 공보물, 점자로 쉽고, 짧게 번역하기")
     put_markdown("<br/>")
     put_markdown("### 진행 상황")
     put_progressbar('Progress')
@@ -63,48 +63,60 @@ def main():
             for i in range(len(temp)):
                 if cnt < 3:
                     if i == cnt:
-                        put_markdown("> **-> " + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]) + "**")
+                        put_markdown("> **> " + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]) + "**")
                     else:
                         put_markdown("> " + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]))
                 elif cnt < len(ts) - 3:
                     if i == 3:
-                        put_markdown("> **->" + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]) + "**")
+                        put_markdown("> **>" + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]) + "**")
                     else:
                         put_markdown("> " + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]))
                 else:
                     if i == len(temp) - cnt:
-                        put_markdown("> **->" + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]) + "**")
+                        put_markdown("> **>" + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]) + "**")
                     else:
                         put_markdown("> " + re.sub(r'[^A-Za-z0-9가-힣,!.? %]', '', temp[i][0]))
             put_markdown("___")
-            outputs = get_alternatives(ts[cnt][0], len(ts[cnt][0]), args.psid.strip())
-            sel = radio("요약된 문장을 선택해주세요.", outputs + ["그대로 점역할게요.", "다음 문장과 함께 점역할게요.", "이 문장은 뺄게요.", "직접 변경할래요."])
-            if sel == outputs[0]:
-                shorten_kr += outputs[0] + "\n"
-                shorten_bs += KorToBraille().korTranslate(outputs[0]).strip()[:-10] + "\n"
-                ts[cnt][0]=outputs[0][:-10]
-            elif sel == outputs[1]:
-                shorten_kr += outputs[1] + "\n"
-                shorten_bs += KorToBraille().korTranslate(outputs[1]).strip()[:-10] + "\n"
-                ts[cnt][0] = outputs[1][:-10]
-            elif sel == outputs[2]:
-                shorten_kr += outputs[2] + "\n"
-                shorten_bs += KorToBraille().korTranslate(outputs[2]).strip()[:-10] + "\n"
-                ts[cnt][0] = outputs[2][:-10]
-            elif sel == "그대로 점역할게요.":
+
+            sel1=radio("이 문장을 어떻게 할까요?" , ["요약할게요.", "그대로 점역할게요.", "다음 문장과 함께 점역할게요.", "이 문장은 뺄게요.", "직접 변경할래요."])
+            if sel1 == "그대로 점역할게요.":
                 shorten_kr += ts[cnt][0] + "\n"
                 shorten_bs += KorToBraille().korTranslate(ts[cnt][0]).strip()[:-10] + "\n"
-            elif sel == "이 문장은 뺄게요.":
+            elif sel1 == "이 문장은 뺄게요.":
                 ts[cnt][0] = "삭제됨"
                 pass
-            elif sel == "다음 문장과 함께 점역할게요.":
+            elif sel1 == "다음 문장과 함께 점역할게요.":
                 next = ts[cnt][0] + " "
-            else:
+            elif sel1 == "직접 변경할래요.":
                 put_markdown("* **원래 문장 : \"" + ts[cnt][0] + "\" (길이 : " + str(b_len) + ")**")
                 done = input("변경 사항을 입력해주세요.")
                 shorten_kr += done + "\n"
                 shorten_bs += KorToBraille().korTranslate(done).strip()[:-1] + "\n"
                 ts[cnt][0] = done
+            else:
+                outputs = get_alternatives(ts[cnt][0], len(ts[cnt][0]), args.psid.strip())
+                sel2 = radio("요약된 문장을 선택해주세요.", outputs+["그대로 점역할게요."])
+                try:
+                    if sel2 == outputs[0]:
+                        shorten_kr += outputs[0] + "\n"
+                        shorten_bs += KorToBraille().korTranslate(outputs[0]).strip()[:-10] + "\n"
+                        ts[cnt][0]=outputs[0][:-10]
+                    elif sel2 == outputs[1]:
+                        shorten_kr += outputs[1] + "\n"
+                        shorten_bs += KorToBraille().korTranslate(outputs[1]).strip()[:-10] + "\n"
+                        ts[cnt][0] = outputs[1][:-10]
+                    elif sel2 == outputs[2]:
+                        shorten_kr += outputs[2] + "\n"
+                        shorten_bs += KorToBraille().korTranslate(outputs[2]).strip()[:-10] + "\n"
+                        ts[cnt][0] = outputs[2][:-10]
+                    elif sel2 == "그대로 점역할게요.":
+                        shorten_kr += ts[cnt][0] + "\n"
+                        shorten_bs += KorToBraille().korTranslate(ts[cnt][0]).strip()[:-10] + "\n"
+                except:
+                    put_markdown("마땅한 요약 문장이 없어요. 그대로 점역할게요.")
+                    shorten_kr += ts[cnt][0] + "\n"
+                    shorten_bs += KorToBraille().korTranslate(ts[cnt][0]).strip()[:-10] + "\n"
+
             cnt += 1
 
     with use_scope('second', clear=True):
